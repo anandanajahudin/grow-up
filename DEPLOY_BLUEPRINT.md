@@ -51,20 +51,27 @@ Repo **tidak** di-clone langsung ke `public_html`, supaya folder `.git` tidak ik
 **Jika repo GitHub publik:** lewati fase ini, clone pakai URL HTTPS.
 
 **Jika repo privat** (pakai SSH deploy key):
-1. cPanel → **SSH Access** → *Manage SSH Keys* → *Generate a New Key* (tanpa passphrase, nama mis. `github_deploy`). Atau via Terminal cPanel:
+
+> Akun cPanel ini sudah punya key `github_deploy` milik project **babyshop**. **Jangan dipakai ulang atau ditimpa.** GitHub menolak satu deploy key dipakai di dua repo, dan mengubah `Host github.com` di `~/.ssh/config` bisa merusak pull babyshop. Buat key terpisah dan pakai **alias host**.
+
+1. Buat key baru via Terminal cPanel (atau SSH Access → *Generate a New Key* dengan nama `github_growup`, tanpa passphrase):
    ```bash
-   ssh-keygen -t ed25519 -f ~/.ssh/github_deploy -N ""
-   cat ~/.ssh/github_deploy.pub
+   ssh-keygen -t ed25519 -f ~/.ssh/github_growup -N "" -C "growup-deploy"
+   cat ~/.ssh/github_growup.pub
    ```
 2. GitHub → repo `grow-up` → *Settings → Deploy keys → Add deploy key* → tempel public key (read-only cukup).
-3. Buat `~/.ssh/config` di server:
+3. Lihat dulu isi config yang sudah ada: `cat ~/.ssh/config`. **Jangan ubah** entri babyshop; **tambahkan** di bagian bawah:
    ```
-   Host github.com
-     IdentityFile ~/.ssh/github_deploy
+   Host github-growup
+     HostName github.com
+     User git
+     IdentityFile ~/.ssh/github_growup
      IdentitiesOnly yes
    ```
-4. Tes: `ssh -T git@github.com` → harus muncul "successfully authenticated".
-5. Clone URL yang dipakai: `git@github.com:anandanajahudin/grow-up.git`.
+   Pastikan permission benar: `chmod 600 ~/.ssh/config ~/.ssh/github_growup`.
+4. Tes: `ssh -T git@github-growup` → harus muncul "Hi anandanajahudin/grow-up! You've successfully authenticated".
+   Tes juga babyshop masih aman: `cd ~/repositories/<babyshop> && git fetch`.
+5. Clone URL yang dipakai di Fase 3: `git@github-growup:anandanajahudin/grow-up.git` (pakai alias, **bukan** `github.com`).
 
 ## Fase 3 — Clone di cPanel
 
@@ -73,7 +80,7 @@ cPanel → **Git™ Version Control** → **Create**:
 | Field | Isi |
 |---|---|
 | Clone a Repository | ON |
-| Clone URL | `https://github.com/anandanajahudin/grow-up.git` (atau URL SSH untuk repo privat) |
+| Clone URL | `https://github.com/anandanajahudin/grow-up.git` (publik) atau `git@github-growup:anandanajahudin/grow-up.git` (privat, lihat Fase 2) |
 | Repository Path | `repositories/grow-up` |
 | Repository Name | `grow-up` |
 
