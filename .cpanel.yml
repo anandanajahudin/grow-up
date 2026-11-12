@@ -1,0 +1,13 @@
+---
+# Deploy grow-up ke domain utama (grow-up.my.id -> public_html)
+# GANTI "CPANEL_USERNAME" dengan username cPanel Anda sebelum commit.
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/growupmy/public_html/
+    - /bin/cp -R assets $DEPLOYPATH
+    - /bin/cp -R forms $DEPLOYPATH
+    - /bin/cp index.html $DEPLOYPATH
+    - /bin/cp portfolio-details.html $DEPLOYPATH
+    - /bin/cp service-details.html $DEPLOYPATH
+    - /bin/cp starter-page.html $DEPLOYPATH
+    - /bin/cp .htaccess $DEPLOYPATH
